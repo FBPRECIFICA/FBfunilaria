@@ -166,7 +166,7 @@
         <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(this.files)" />
         <div class="icon">📷</div>
         <h3>Adicionar fotos</h3>
-        <p>Clique ou arraste as fotos aqui<br>JPG, PNG — múltiplas fotos aceitas</p>
+        <p>Clique ou arraste as fotos aqui — máx. 8 fotos<br>Fotos serão otimizadas automaticamente</p>
       </div>
       <div class="fotos-grid" id="fotosGrid"></div>
     </div>
@@ -242,12 +242,37 @@
     badge.innerHTML = `<div class="dot"></div><span>${msg}</span>`;
   }
 
-  function handleFiles(files) {
-    Array.from(files).forEach(file => {
+  function comprimirFoto(file) {
+    return new Promise(resolve => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
       const reader = new FileReader();
-      reader.onload = e => { fotosBase64.push(e.target.result); renderFotos(); };
+      reader.onload = e => {
+        img.onload = () => {
+          const MAX = 1280;
+          let w = img.width, h = img.height;
+          if (w > MAX || h > MAX) {
+            if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+            else { w = Math.round(w * MAX / h); h = MAX; }
+          }
+          canvas.width = w; canvas.height = h;
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.src = e.target.result;
+      };
       reader.readAsDataURL(file);
     });
+  }
+
+  async function handleFiles(files) {
+    const arr = Array.from(files).slice(0, 8);
+    for (const file of arr) {
+      const compressed = await comprimirFoto(file);
+      fotosBase64.push(compressed);
+      renderFotos();
+    }
   }
 
   const uploadArea = document.getElementById('uploadArea');
@@ -311,8 +336,7 @@
 
   function getTipoBadge(tipo) {
     const map = { 'troca': 'tipo-troca', 'recup.': 'tipo-recup', 'pintura': 'tipo-pintura', 'rem/inst': 'tipo-rem', 'interna': 'tipo-interna', 'mecânica': 'tipo-mecanica' };
-    const key = (tipo || '').toLowerCase();
-    const cls = map[key] || 'tipo-recup';
+    const cls = map[(tipo||'').toLowerCase()] || 'tipo-recup';
     return `<span class="tipo-badge ${cls}">${tipo}</span>`;
   }
 
@@ -320,83 +344,60 @@
     clearInterval(stepTimer);
     document.getElementById('loadingCard').classList.remove('active');
     const d = dadosVeiculo;
-    const hoje = new Date().toLocaleDateString('pt-BR');
 
     document.getElementById('infoBar').innerHTML = `
       <div class="info-item"><label>Placa / Veículo</label><span>${d.placa} — ${d.veiculo}</span></div>
       <div class="info-item"><label>Cliente</label><span>${d.nomeCliente} <small style="color:var(--muted)">(${d.tipoCliente})</small></span></div>
       <div class="info-item"><label>Solicitação</label><span>${d.solicitacao.substring(0,60)}${d.solicitacao.length>60?'...':''}</span></div>`;
 
-    let html = '';
-    let totalSol = 0, totalAd = 0;
+    let html = '', totalSol = 0, totalAd = 0;
 
     const renderTabela = (titulo, badge, badgeCls, items, showHoras = true) => {
-      const total = showHoras ? items.reduce((s, i) => s + (parseFloat(i.horas) || 0), 0) : 0;
-      return `
-        <div class="table-section">
-          <div class="table-header">
-            <h3>${titulo}</h3>
-            <span class="badge ${badgeCls}">${badge}</span>
-          </div>
-          <table>
-            <thead><tr>
-              <th>Região</th><th>Serviço</th><th>Tipo</th>
-              ${showHoras ? '<th>Horas</th><th>Rem/Inst</th>' : ''}
-              <th>Obs</th>
-            </tr></thead>
-            <tbody>
-              ${items.map(item => `<tr>
-                <td>${item.regiao}</td>
-                <td>${item.servico}</td>
-                <td>${getTipoBadge(item.tipo)}</td>
-                ${showHoras ? `<td><span class="horas">${item.horas ? item.horas+'h' : '—'}</span></td><td>${item.remocao ? 'Sim' : '—'}</td>` : ''}
-                <td style="color:var(--muted)">${item.obs || '—'}</td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-          ${showHoras ? `<div class="totals-bar"><span>Total horas: <strong>${total.toFixed(1)}h</strong></span></div>` : ''}
-        </div>`;
+      const total = showHoras ? items.reduce((s, i) => s + (parseFloat(i.horas)||0), 0) : 0;
+      return `<div class="table-section">
+        <div class="table-header"><h3>${titulo}</h3><span class="badge ${badgeCls}">${badge}</span></div>
+        <table><thead><tr>
+          <th>Região</th><th>Serviço</th><th>Tipo</th>
+          ${showHoras ? '<th>Horas</th><th>Rem/Inst</th>' : ''}
+          <th>Obs</th>
+        </tr></thead><tbody>
+          ${items.map(item => `<tr>
+            <td>${item.regiao}</td><td>${item.servico}</td><td>${getTipoBadge(item.tipo)}</td>
+            ${showHoras ? `<td><span class="horas">${item.horas?item.horas+'h':'—'}</span></td><td>${item.remocao?'Sim':'—'}</td>` : ''}
+            <td style="color:var(--muted)">${item.obs||'—'}</td>
+          </tr>`).join('')}
+        </tbody></table>
+        ${showHoras ? `<div class="totals-bar"><span>Total horas: <strong>${total.toFixed(1)}h</strong></span></div>` : ''}
+      </div>`;
     };
 
     if (data.solicitados?.length > 0) {
-      totalSol = data.solicitados.reduce((s, i) => s + (parseFloat(i.horas) || 0), 0);
+      totalSol = data.solicitados.reduce((s,i) => s+(parseFloat(i.horas)||0), 0);
       html += renderTabela('Serviços Solicitados', 'Solicitado pelo cliente', 'badge-solicitado', data.solicitados);
     }
     if (data.adicionais?.length > 0) {
-      totalAd = data.adicionais.reduce((s, i) => s + (parseFloat(i.horas) || 0), 0);
+      totalAd = data.adicionais.reduce((s,i) => s+(parseFloat(i.horas)||0), 0);
       html += renderTabela('Avarias Adicionais Identificadas', 'Não solicitado — oferecer ao cliente', 'badge-adicional', data.adicionais);
     }
     if (data.mecanica?.length > 0) {
       html += renderTabela('Encaminhamentos — Mecânica', 'Encaminhar para setor mecânico', 'badge-mecanica', data.mecanica, false);
     }
     if (data.pecas?.length > 0) {
-      html += `
-        <div class="table-section">
-          <div class="table-header">
-            <h3>Peças para Cotar</h3>
-            <span class="badge badge-solicitado">${data.pecas.length} peça(s)</span>
-          </div>
-          <table>
-            <thead><tr><th>#</th><th>Peça</th><th>Aplicação</th><th>Qtd</th><th>Seção</th></tr></thead>
-            <tbody>
-              ${data.pecas.map((p, i) => `<tr>
-                <td style="color:var(--muted);font-size:12px">${String(i+1).padStart(2,'0')}</td>
-                <td><strong>${p.nome}</strong></td>
-                <td style="color:var(--muted)">${dadosVeiculo.veiculo}</td>
-                <td>${p.qtd || 1}</td>
-                <td><span class="badge ${p.secao==='solicitado'?'badge-solicitado':'badge-adicional'}">${p.secao==='solicitado'?'Solicitado':'Adicional'}</span></td>
-              </tr>`).join('')}
-            </tbody>
-          </table>
-        </div>`;
+      html += `<div class="table-section">
+        <div class="table-header"><h3>Peças para Cotar</h3><span class="badge badge-solicitado">${data.pecas.length} peça(s)</span></div>
+        <table><thead><tr><th>#</th><th>Peça</th><th>Aplicação</th><th>Qtd</th><th>Seção</th></tr></thead><tbody>
+          ${data.pecas.map((p,i) => `<tr>
+            <td style="color:var(--muted);font-size:12px">${String(i+1).padStart(2,'0')}</td>
+            <td><strong>${p.nome}</strong></td>
+            <td style="color:var(--muted)">${dadosVeiculo.veiculo}</td>
+            <td>${p.qtd||1}</td>
+            <td><span class="badge ${p.secao==='solicitado'?'badge-solicitado':'badge-adicional'}">${p.secao==='solicitado'?'Solicitado':'Adicional'}</span></td>
+          </tr>`).join('')}
+        </tbody></table>
+      </div>`;
     }
 
-    html += `
-      <div class="grand-total">
-        <span>Total geral de horas (funilaria + pintura)</span>
-        <strong>${(totalSol + totalAd).toFixed(1)}h</strong>
-      </div>`;
-
+    html += `<div class="grand-total"><span>Total geral de horas (funilaria + pintura)</span><strong>${(totalSol+totalAd).toFixed(1)}h</strong></div>`;
     document.getElementById('resultContent').innerHTML = html;
     document.getElementById('resultWrap').classList.add('active');
   }
@@ -422,66 +423,61 @@
     doc.text(hoje, W - M, 13, { align: 'right' });
 
     let y = 38;
-    doc.setTextColor(80, 80, 80); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.setTextColor(80,80,80); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
     doc.text('PLACA / VEÍCULO', M, y); doc.text('CLIENTE', 80, y); doc.text('SOLICITAÇÃO', 140, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(30, 30, 30);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(30,30,30);
     y += 5;
     doc.text(`${d.placa} — ${d.veiculo}`, M, y);
     doc.text(`${d.nomeCliente} (${d.tipoCliente})`, 80, y);
     const sol = doc.splitTextToSize(d.solicitacao, 55);
-    doc.text(sol[0] || '', 140, y);
+    doc.text(sol[0]||'', 140, y);
     y += 14;
 
     const drawSection = (titulo, badge, items, cols) => {
       if (!items || items.length === 0) return;
-      doc.setFillColor(240, 240, 240);
-      doc.rect(M, y, W - M*2, 8, 'F');
+      if (y > 250) { doc.addPage(); y = 20; }
+      doc.setFillColor(240,240,240);
+      doc.rect(M, y, W-M*2, 8, 'F');
       doc.setTextColor(40,40,40); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-      doc.text(titulo, M + 2, y + 5.5);
+      doc.text(titulo, M+2, y+5.5);
       doc.setFontSize(8); doc.setTextColor(100,100,100);
-      doc.text(badge, W - M - 2, y + 5.5, { align: 'right' });
-
+      doc.text(badge, W-M-2, y+5.5, { align: 'right' });
       doc.autoTable({
-        startY: y + 9,
+        startY: y+9,
         head: [cols.map(c => c.h)],
         body: items.map(item => cols.map(c => {
           if (c.k === 'remocao') return item[c.k] ? 'Sim' : '—';
-          if (c.k === 'horas') return item[c.k] ? item[c.k] + 'h' : '—';
+          if (c.k === 'horas') return item[c.k] ? item[c.k]+'h' : '—';
           return item[c.k] || '—';
         })),
         styles: { fontSize: 9, cellPadding: 2.5 },
         headStyles: { fillColor: [40,40,45], textColor: [200,200,200], fontStyle: 'bold', fontSize: 8 },
         alternateRowStyles: { fillColor: [250,250,250] },
         margin: { left: M, right: M },
-        tableWidth: W - M*2,
+        tableWidth: W-M*2,
       });
       y = doc.lastAutoTable.finalY + 8;
     };
 
-    const colsServico = [
-      {h:'Região',k:'regiao'},{h:'Serviço',k:'servico'},{h:'Tipo',k:'tipo'},
-      {h:'Horas',k:'horas'},{h:'Rem/Inst',k:'remocao'},{h:'Obs',k:'obs'}
-    ];
-    const colsMec = [{h:'Região',k:'regiao'},{h:'Suspeita',k:'servico'},{h:'Obs',k:'obs'}];
-    const colsPecas = [{h:'#',k:'idx'},{h:'Peça',k:'nome'},{h:'Qtd',k:'qtd'},{h:'Seção',k:'secaoLabel'}];
+    const colsS = [{h:'Região',k:'regiao'},{h:'Serviço',k:'servico'},{h:'Tipo',k:'tipo'},{h:'Horas',k:'horas'},{h:'Rem/Inst',k:'remocao'},{h:'Obs',k:'obs'}];
+    const colsM = [{h:'Região',k:'regiao'},{h:'Suspeita',k:'servico'},{h:'Obs',k:'obs'}];
+    const colsP = [{h:'#',k:'idx'},{h:'Peça',k:'nome'},{h:'Qtd',k:'qtd'},{h:'Seção',k:'secaoLabel'}];
 
-    drawSection('Serviços Solicitados', 'Solicitado pelo cliente', dadosOrcamento.solicitados, colsServico);
-    drawSection('Avarias Adicionais', 'Não solicitado — oferecer ao cliente', dadosOrcamento.adicionais, colsServico);
-    drawSection('Encaminhamentos — Mecânica', 'Setor mecânico', dadosOrcamento.mecanica, colsMec);
+    drawSection('Serviços Solicitados', 'Solicitado pelo cliente', dadosOrcamento.solicitados, colsS);
+    drawSection('Avarias Adicionais', 'Não solicitado — oferecer ao cliente', dadosOrcamento.adicionais, colsS);
+    drawSection('Encaminhamentos — Mecânica', 'Setor mecânico', dadosOrcamento.mecanica, colsM);
 
-    const pecasComIdx = (dadosOrcamento.pecas || []).map((p, i) => ({
-      ...p, idx: String(i+1).padStart(2,'0'),
-      secaoLabel: p.secao === 'solicitado' ? 'Solicitado' : 'Adicional'
-    }));
-    drawSection('Peças para Cotar', `${pecasComIdx.length} peça(s)`, pecasComIdx, colsPecas);
+    const pecasIdx = (dadosOrcamento.pecas||[]).map((p,i) => ({...p, idx: String(i+1).padStart(2,'0'), secaoLabel: p.secao==='solicitado'?'Solicitado':'Adicional'}));
+    drawSection('Peças para Cotar', `${pecasIdx.length} peça(s)`, pecasIdx, colsP);
 
+    if (y > 260) { doc.addPage(); y = 20; }
     doc.setFillColor(250, 238, 218);
-    doc.rect(M, y, W - M*2, 14, 'F');
-    doc.setTextColor(133, 79, 11); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
-    doc.text('AVISO:', M + 3, y + 5.5);
-    doc.setFont('helvetica', 'normal');
-    const aviso = doc.splitTextToSize('Orçamento elaborado com base em análise visual das fotografias. O orçamentista deve revisar todos os itens antes de enviar ao cliente ou locadora.', W - M*2 - 18);
-    doc.text(aviso, M + 16, y + 5.5);
+    doc.rect(M, y, W-M*2, 14, 'F');
+    doc.setTextColor(133,79,11); doc.setFontSize(8); doc.setFont('helvetica','bold');
+    doc.text('AVISO:', M+3, y+5.5);
+    doc.setFont('helvetica','normal');
+    const aviso = doc.splitTextToSize('Orçamento elaborado com base em análise visual das fotografias. O orçamentista deve revisar todos os itens antes de enviar ao cliente ou locadora.', W-M*2-18);
+    doc.text(aviso, M+16, y+5.5);
 
     doc.save(`FB_Funilaria_${d.placa}_${hoje.replace(/\//g,'-')}.pdf`);
   }
