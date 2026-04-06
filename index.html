@@ -21,4 +21,422 @@
     .logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
     .logo-mark { width: 38px; height: 38px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; color: #fff; flex-shrink: 0; }
     .logo-info h1 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: #fff; line-height: 1; }
-    .logo-info span
+    .logo-info span { font-size: 11px; color: rgba(255,255,255,0.55); }
+    .app-headline { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: 8px; }
+    .app-headline em { color: #ffd0d0; font-style: normal; }
+    .app-desc { font-size: 12px; color: rgba(255,255,255,0.65); line-height: 1.6; margin-bottom: 14px; max-width: 520px; }
+    .ai-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 5px 14px; }
+    .ai-dot { width: 7px; height: 7px; background: #fff; border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+    .ai-txt { font-size: 11px; color: rgba(255,255,255,0.9); font-family: monospace; font-weight: 500; }
+    .app-body { background: var(--surface); border-radius: 0 0 16px 16px; border: 1px solid var(--border); border-top: none; padding: 28px 32px; margin-bottom: 20px; }
+    .section-label { font-size: 9px; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .grid3 { display: grid; grid-template-columns: 130px 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 9px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.09em; }
+    input, select, textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 10px 13px; outline: none; width: 100%; transition: border-color 0.2s, box-shadow 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(204,31,31,0.08); }
+    input::placeholder, textarea::placeholder { color: #ccc; }
+    textarea { resize: vertical; min-height: 85px; }
+    .placa-inp { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; text-transform: uppercase; letter-spacing: 0.1em; text-align: center; }
+    .veiculo-badge { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; display: flex; align-items: center; gap: 8px; min-height: 42px; transition: all 0.2s; }
+    .veiculo-badge.found { background: var(--green-light); border-color: var(--green-border); }
+    .vdot { width: 7px; height: 7px; border-radius: 50%; background: #ddd; flex-shrink: 0; transition: background 0.3s; }
+    .veiculo-badge.found .vdot { background: var(--green); }
+    .vtxt { font-size: 12px; color: var(--muted); }
+    .veiculo-badge.found .vtxt { color: #1a6640; font-weight: 600; }
+    .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 28px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; margin-bottom: 8px; }
+    .upload-zone:hover, .upload-zone.over { border-color: var(--red); background: var(--red-light); }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon { width: 40px; height: 40px; background: var(--red-light); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 18px; }
+    .upload-zone h3 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .upload-zone p { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .fotos-count { font-size: 11px; color: var(--muted); text-align: right; margin-bottom: 10px; }
+    .fotos-count span { color: var(--red); font-weight: 600; }
+    .fotos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-bottom: 8px; }
+    .foto-thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .foto-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .foto-remove { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.65); border: none; border-radius: 50%; width: 20px; height: 20px; color: #fff; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .btn-iniciar { width: 100%; background: var(--red); border: none; border-radius: 10px; color: #fff; cursor: pointer; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 0.04em; padding: 16px; margin-top: 20px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-iniciar:hover:not(:disabled) { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(204,31,31,0.25); }
+    .btn-iniciar:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .loading-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 60px 32px; text-align: center; display: none; }
+    .loading-wrap.active { display: block; }
+    .spinner { width: 50px; height: 50px; border: 3px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-wrap h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .loading-wrap p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .steps { display: flex; flex-direction: column; gap: 8px; max-width: 280px; margin: 0 auto; text-align: left; }
+    .step { font-size: 12px; color: #ccc; display: flex; align-items: center; gap: 8px; }
+    .step.active { color: var(--red); font-weight: 500; }
+    .step.done { color: var(--green); }
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .result-wrap { display: none; }
+    .result-wrap.active { display: block; }
+    .result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .result-top h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); }
+    .btn-group { display: flex; gap: 8px; }
+    .btn-nova { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px 18px; transition: all 0.2s; }
+    .btn-nova:hover { border-color: var(--red); color: var(--red); }
+    .btn-pdf { background: var(--red); border: none; border-radius: 8px; color: #fff; cursor: pointer; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; padding: 9px 20px; transition: all 0.2s; }
+    .btn-pdf:hover { background: var(--red-dark); }
+    .info-strip { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .info-item .ilabel { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; display: block; margin-bottom: 3px; }
+    .info-item .ival { font-size: 13px; font-weight: 600; color: var(--text); }
+    .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 14px; overflow: hidden; }
+    .table-head { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: #fafafa; }
+    .table-head h3 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+    .tbadge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .tbadge-sol { background: rgba(0,168,85,0.1); color: #006b36; }
+    .tbadge-add { background: rgba(204,120,0,0.1); color: #7a4800; }
+    .tbadge-mec { background: rgba(26,86,196,0.1); color: #0d3a8a; }
+    .tbadge-pec { background: rgba(204,31,31,0.1); color: var(--red-dark); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { padding: 9px 16px; text-align: left; font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); background: #fafafa; }
+    td { padding: 9px 16px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+    .tipo { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+    .tipo-troca { background: rgba(204,31,31,0.1); color: var(--red-dark); }
+    .tipo-recup { background: rgba(204,120,0,0.1); color: #7a4800; }
+    .tipo-pintura { background: rgba(26,86,196,0.1); color: #0d3a8a; }
+    .tipo-rem { background: rgba(0,168,85,0.1); color: #006b36; }
+    .tipo-interna { background: rgba(100,100,200,0.1); color: #333388; }
+    .tipo-mecanica { background: rgba(120,0,200,0.1); color: #5a0099; }
+    .horas-val { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--text); font-size: 13px; }
+    .total-bar { padding: 10px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; background: #fafafa; }
+    .total-bar span { font-size: 12px; color: var(--muted); }
+    .total-bar strong { color: var(--text); margin-left: 6px; font-family: 'Syne', sans-serif; }
+    .grand-total-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .grand-total-bar span { font-size: 13px; color: var(--muted); }
+    .grand-total-bar strong { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--red); }
+    .aviso-bar { background: #fffbeb; border: 1px solid #f0d060; border-radius: 12px; padding: 13px 18px; font-size: 12px; color: #7a5800; line-height: 1.6; margin-bottom: 14px; }
+    .error-bar { background: #fff0f0; border: 1px solid #f0b0b0; border-radius: 10px; padding: 12px 18px; font-size: 13px; color: var(--red-dark); margin-bottom: 16px; display: none; }
+    .error-bar.active { display: block; }
+    .app-footer { text-align: center; margin-top: 8px; padding: 12px; }
+    .app-footer-txt { font-size: 10px; color: var(--dim); font-family: monospace; }
+    .app-footer-chips { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+    .chip { font-size: 9px; color: var(--dim); background: #fff; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-family: monospace; }
+    @media(max-width:580px) { .grid3, .grid2 { grid-template-columns: 1fr; } .app-header, .app-body { padding: 20px; } .info-strip { grid-template-columns: 1fr; } .result-top { flex-direction: column; align-items: flex-start; gap: 10px; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div id="formWrap">
+    <div class="app-header">
+      <div class="logo-row">
+        <div class="logo-mark">FB</div>
+        <div class="logo-info">
+          <h1>FB Funilaria</h1>
+          <span>MM ServiceCar — Triagem Inteligente de Avarias</span>
+        </div>
+      </div>
+      <div class="app-headline">Orçamento em <em>segundos</em>, não horas.</div>
+      <div class="app-desc">A IA analisa as fotos, classifica cada avaria, calcula as horas e monta o rascunho completo para o orçamentista finalizar.</div>
+      <div class="ai-badge">
+        <div class="ai-dot"></div>
+        <div class="ai-txt">GPT-4o Vision — pronto para analisar</div>
+      </div>
+    </div>
+    <div class="app-body">
+      <div class="section-label">Dados do Veículo</div>
+      <div class="grid3">
+        <div class="field">
+          <label>Placa</label>
+          <input type="text" id="placaInput" class="placa-inp" placeholder="ABC1D23" maxlength="8" />
+        </div>
+        <div class="field">
+          <label>Veículo identificado</label>
+          <div class="veiculo-badge" id="veiculoBadge">
+            <div class="vdot"></div>
+            <span class="vtxt">Digite a placa</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Ou informe manualmente</label>
+          <input type="text" id="veiculoManual" placeholder="Ex: Fiat Fiorino 2022" />
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Tipo de cliente</label>
+          <select id="tipoCliente" onchange="toggleCliente()">
+            <option value="">Selecione...</option>
+            <option value="locadora">Locadora</option>
+            <option value="particular">Particular</option>
+          </select>
+        </div>
+        <div class="field">
+          <label id="labelCliente">Nome do cliente</label>
+          <input type="text" id="nomeCliente" placeholder="Ex: Localiza, João Silva..." />
+        </div>
+      </div>
+      <div class="section-label">Solicitação do Cliente</div>
+      <div class="field" style="margin-bottom:20px;">
+        <label>Descreva o que o cliente solicitou</label>
+        <textarea id="solicitacao" placeholder="Ex: Cliente solicita avaliação de colisão frontal..."></textarea>
+      </div>
+      <div class="section-label">Fotos das Avarias</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(this.files)" />
+        <div class="upload-icon">📷</div>
+        <h3>Adicionar fotos</h3>
+        <p>Clique ou arraste — JPG, PNG<br>Múltiplas fotos aceitas — processadas em lotes automaticamente</p>
+      </div>
+      <div class="fotos-count" id="fotosCount" style="display:none;"><span id="fotosNum">0</span> foto(s) adicionada(s)</div>
+      <div class="fotos-grid" id="fotosGrid"></div>
+      <div class="error-bar" id="errorBar"><span id="errorMsg"></span></div>
+      <button class="btn-iniciar" onclick="iniciarOrcamento()">🔍 Iniciar Orçamento com IA</button>
+    </div>
+    <div class="app-footer">
+      <div class="app-footer-txt">FB Funilaria v1.0 — MM ServiceCar © 2026</div>
+      <div class="app-footer-chips">
+        <span class="chip">GPT-4o Vision</span>
+        <span class="chip">Vercel Edge</span>
+        <span class="chip">PDF Export</span>
+        <span class="chip">Lotes automáticos</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-wrap" id="loadingWrap">
+    <div class="spinner"></div>
+    <h3>Analisando avarias...</h3>
+    <p>A IA está inspecionando as fotos e montando o rascunho</p>
+    <div class="steps">
+      <div class="step active" id="step1"><div class="step-dot"></div>Processando imagens</div>
+      <div class="step" id="step2"><div class="step-dot"></div>Identificando avarias</div>
+      <div class="step" id="step3"><div class="step-dot"></div>Classificando serviços</div>
+      <div class="step" id="step4"><div class="step-dot"></div>Montando rascunho</div>
+    </div>
+  </div>
+
+  <div class="result-wrap" id="resultWrap">
+    <div class="result-top">
+      <h2>Rascunho do Orçamento</h2>
+      <div class="btn-group">
+        <button class="btn-nova" onclick="novaVistoria()">← Nova Vistoria</button>
+        <button class="btn-pdf" onclick="gerarPDF()">⬇ Baixar PDF</button>
+      </div>
+    </div>
+    <div class="info-strip" id="infoStrip"></div>
+    <div id="resultContent"></div>
+    <div class="aviso-bar"><strong>⚠ Aviso:</strong> Orçamento elaborado com base em análise visual das fotografias. As horas são estimativas conforme grau aparente das avarias. O orçamentista deve revisar todos os itens, cotar as peças listadas e finalizar os valores antes de enviar ao cliente ou locadora.</div>
+  </div>
+</div>
+<script>
+  let fotosBase64=[],dadosOrcamento=null,dadosVeiculo={},placaTimer=null,stepTimer=null;
+  document.getElementById('placaInput').addEventListener('input',function(){
+    const val=this.value.replace(/[^a-zA-Z0-9]/g,'').toUpperCase();
+    this.value=val; clearTimeout(placaTimer);
+    if(val.length>=7) placaTimer=setTimeout(()=>buscarPlaca(val),600);
+    else resetBadge();
+  });
+  function toggleCliente(){
+    const t=document.getElementById('tipoCliente').value;
+    document.getElementById('labelCliente').textContent=t==='locadora'?'Nome da locadora':'Nome do cliente';
+  }
+  async function buscarPlaca(placa){
+    const badge=document.getElementById('veiculoBadge');
+    badge.className='veiculo-badge';
+    badge.innerHTML='<div class="vdot"></div><span class="vtxt">Consultando...</span>';
+    try{
+      const res=await fetch(`/api/placa?placa=${placa}`);
+      const data=await res.json();
+      if(data&&(data.modelo||data.MODELO)){
+        const v=`${data.marca||data.MARCA||''} ${data.modelo||data.MODELO||''} ${data.ano||data.ANO||''}`.trim();
+        dadosVeiculo.veiculo=v; dadosVeiculo.placa=placa;
+        badge.className='veiculo-badge found';
+        badge.innerHTML=`<div class="vdot"></div><span class="vtxt">${v}</span>`;
+        document.getElementById('veiculoManual').value='';
+      } else resetBadge('Placa não encontrada');
+    } catch{ resetBadge('Erro ao consultar'); }
+  }
+  function resetBadge(msg='Digite a placa'){
+    dadosVeiculo.veiculo='';
+    const badge=document.getElementById('veiculoBadge');
+    badge.className='veiculo-badge';
+    badge.innerHTML=`<div class="vdot"></div><span class="vtxt">${msg}</span>`;
+  }
+  function comprimirFoto(file){
+    return new Promise(resolve=>{
+      const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d'),img=new Image(),reader=new FileReader();
+      reader.onload=e=>{
+        img.onload=()=>{
+          const MAX=1280;let w=img.width,h=img.height;
+          if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+          canvas.width=w;canvas.height=h;ctx.drawImage(img,0,0,w,h);
+          resolve(canvas.toDataURL('image/jpeg',0.8));
+        };img.src=e.target.result;
+      };reader.readAsDataURL(file);
+    });
+  }
+  async function handleFiles(files){
+    for(const file of Array.from(files)){
+      const c=await comprimirFoto(file);fotosBase64.push(c);renderFotos();
+    }
+  }
+  const uz=document.getElementById('uploadZone');
+  uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('over');});
+  uz.addEventListener('dragleave',()=>uz.classList.remove('over'));
+  uz.addEventListener('drop',e=>{e.preventDefault();uz.classList.remove('over');handleFiles(e.dataTransfer.files);});
+  function renderFotos(){
+    const cnt=document.getElementById('fotosCount');
+    document.getElementById('fotosNum').textContent=fotosBase64.length;
+    cnt.style.display=fotosBase64.length>0?'block':'none';
+    document.getElementById('fotosGrid').innerHTML=fotosBase64.map((src,i)=>`
+      <div class="foto-thumb"><img src="${src}"/><button class="foto-remove" onclick="removerFoto(${i})">×</button></div>`).join('');
+  }
+  function removerFoto(i){fotosBase64.splice(i,1);renderFotos();}
+  async function iniciarOrcamento(){
+    hideError();
+    const placa=document.getElementById('placaInput').value.trim();
+    const veiculo=dadosVeiculo.veiculo||document.getElementById('veiculoManual').value.trim();
+    const tipoCliente=document.getElementById('tipoCliente').value;
+    const nomeCliente=document.getElementById('nomeCliente').value.trim();
+    const solicitacao=document.getElementById('solicitacao').value.trim();
+    if(!veiculo) return showError('Informe a placa ou o veículo manualmente.');
+    if(!tipoCliente) return showError('Selecione o tipo de cliente.');
+    if(!nomeCliente) return showError('Informe o nome do cliente ou locadora.');
+    if(!solicitacao) return showError('Descreva a solicitação do cliente.');
+    if(fotosBase64.length===0) return showError('Adicione ao menos uma foto das avarias.');
+    dadosVeiculo={placa:placa||'N/A',veiculo,tipoCliente,nomeCliente,solicitacao};
+    document.getElementById('formWrap').style.display='none';
+    document.getElementById('loadingWrap').classList.add('active');
+    animateSteps();
+    try{
+      const LOTE=5,lotes=[];
+      for(let i=0;i<fotosBase64.length;i+=LOTE) lotes.push(fotosBase64.slice(i,i+LOTE));
+      let solicitados=[],adicionais=[],mecanica=[],pecas=[];
+      for(const lote of lotes){
+        const res=await fetch('/api/analisar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({veiculo,solicitacao,fotos:lote})});
+        const data=await res.json();
+        if(!res.ok) throw new Error(data.erro||'Erro na análise');
+        if(data.solicitados) solicitados=[...solicitados,...data.solicitados];
+        if(data.adicionais) adicionais=[...adicionais,...data.adicionais];
+        if(data.mecanica) mecanica=[...mecanica,...data.mecanica];
+        if(data.pecas) pecas=[...pecas,...data.pecas];
+      }
+      const pecasUnicas=pecas.filter((p,i,arr)=>arr.findIndex(x=>x.nome===p.nome)===i);
+      dadosOrcamento={solicitados,adicionais,mecanica,pecas:pecasUnicas};
+      renderResultado(dadosOrcamento);
+    } catch(err){
+      clearInterval(stepTimer);
+      document.getElementById('loadingWrap').classList.remove('active');
+      document.getElementById('formWrap').style.display='block';
+      showError('Erro: '+err.message);
+    }
+  }
+  function animateSteps(){
+    const steps=['step1','step2','step3','step4'];let i=0;
+    stepTimer=setInterval(()=>{
+      if(i>0) document.getElementById(steps[i-1]).className='step done';
+      if(i<steps.length){document.getElementById(steps[i]).className='step active';i++;}
+      else clearInterval(stepTimer);
+    },2500);
+  }
+  function getTipo(tipo){
+    const map={'troca':'tipo-troca','recup.':'tipo-recup','pintura':'tipo-pintura','rem/inst':'tipo-rem','interna':'tipo-interna','mecânica':'tipo-mecanica'};
+    const cls=map[(tipo||'').toLowerCase()]||'tipo-recup';
+    return `<span class="tipo ${cls}">${tipo}</span>`;
+  }
+  function renderResultado(data){
+    clearInterval(stepTimer);
+    document.getElementById('loadingWrap').classList.remove('active');
+    const d=dadosVeiculo;
+    document.getElementById('infoStrip').innerHTML=`
+      <div class="info-item"><span class="ilabel">Placa / Veículo</span><span class="ival">${d.placa} — ${d.veiculo}</span></div>
+      <div class="info-item"><span class="ilabel">Cliente</span><span class="ival">${d.nomeCliente} <small style="color:var(--muted);font-weight:400">(${d.tipoCliente})</small></span></div>
+      <div class="info-item"><span class="ilabel">Solicitação</span><span class="ival" style="font-size:12px;">${d.solicitacao.substring(0,55)}${d.solicitacao.length>55?'...':''}</span></div>`;
+    let html='',totalSol=0,totalAd=0;
+    const tbl=(titulo,badgeTxt,badgeCls,items,showH=true)=>{
+      const tot=showH?items.reduce((s,i)=>s+(parseFloat(i.horas)||0),0):0;
+      return `<div class="table-card">
+        <div class="table-head"><h3>${titulo}</h3><span class="tbadge ${badgeCls}">${badgeTxt}</span></div>
+        <table><thead><tr><th>Região</th><th>Serviço</th><th>Tipo</th>${showH?'<th>Horas</th><th>Rem/Inst</th>':''}<th>Obs</th></tr></thead><tbody>
+          ${items.map(it=>`<tr><td>${it.regiao}</td><td>${it.servico}</td><td>${getTipo(it.tipo)}</td>${showH?`<td><span class="horas-val">${it.horas?it.horas+'h':'—'}</span></td><td>${it.remocao?'Sim':'—'}</td>`:''}<td style="color:var(--muted)">${it.obs||'—'}</td></tr>`).join('')}
+        </tbody></table>
+        ${showH?`<div class="total-bar"><span>Total horas: <strong>${tot.toFixed(1)}h</strong></span></div>`:''}
+      </div>`;
+    };
+    if(data.solicitados?.length>0){totalSol=data.solicitados.reduce((s,i)=>s+(parseFloat(i.horas)||0),0);html+=tbl('Serviços Solicitados','Solicitado pelo cliente','tbadge-sol',data.solicitados);}
+    if(data.adicionais?.length>0){totalAd=data.adicionais.reduce((s,i)=>s+(parseFloat(i.horas)||0),0);html+=tbl('Avarias Adicionais Identificadas','Não solicitado — oferecer ao cliente','tbadge-add',data.adicionais);}
+    if(data.mecanica?.length>0){html+=tbl('Encaminhamentos — Mecânica','Encaminhar para setor mecânico','tbadge-mec',data.mecanica,false);}
+    if(data.pecas?.length>0){
+      html+=`<div class="table-card"><div class="table-head"><h3>Peças para Cotar</h3><span class="tbadge tbadge-pec">${data.pecas.length} peça(s)</span></div>
+      <table><thead><tr><th>#</th><th>Peça</th><th>Aplicação</th><th>Qtd</th><th>Seção</th></tr></thead><tbody>
+        ${data.pecas.map((p,i)=>`<tr><td style="color:var(--muted);font-size:11px">${String(i+1).padStart(2,'0')}</td><td><strong>${p.nome}</strong></td><td style="color:var(--muted)">${dadosVeiculo.veiculo}</td><td>${p.qtd||1}</td><td><span class="tbadge ${p.secao==='solicitado'?'tbadge-sol':'tbadge-add'}">${p.secao==='solicitado'?'Solicitado':'Adicional'}</span></td></tr>`).join('')}
+      </tbody></table></div>`;
+    }
+    html+=`<div class="grand-total-bar"><span>Total geral de horas (funilaria + pintura)</span><strong>${(totalSol+totalAd).toFixed(1)}h</strong></div>`;
+    document.getElementById('resultContent').innerHTML=html;
+    document.getElementById('resultWrap').classList.add('active');
+  }
+  function gerarPDF(){
+    if(!dadosOrcamento||!dadosVeiculo) return;
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const d=dadosVeiculo,hoje=new Date().toLocaleDateString('pt-BR'),W=210,M=15;
+    doc.setFillColor(204,31,31);doc.rect(0,0,W,32,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(16);doc.setFont('helvetica','bold');
+    doc.text('MM ServiceCar',M,14);
+    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(255,200,200);
+    doc.text('Rascunho de Avaliação — Funilaria e Pintura',M,22);
+    doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont('helvetica','bold');
+    doc.text(hoje,W-M,14,{align:'right'});
+    let y=40;
+    doc.setTextColor(100,100,100);doc.setFontSize(8);doc.setFont('helvetica','bold');
+    doc.text('PLACA / VEÍCULO',M,y);doc.text('CLIENTE',80,y);doc.text('SOLICITAÇÃO',145,y);
+    doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(30,30,30);y+=5;
+    doc.text(`${d.placa} — ${d.veiculo}`,M,y);
+    doc.text(`${d.nomeCliente} (${d.tipoCliente})`,80,y);
+    const sol=doc.splitTextToSize(d.solicitacao,55);doc.text(sol[0]||'',145,y);y+=14;
+    const drawSec=(titulo,badge,items,cols)=>{
+      if(!items||items.length===0) return;
+      if(y>255){doc.addPage();y=20;}
+      doc.setFillColor(245,245,245);doc.rect(M,y,W-M*2,8,'F');
+      doc.setTextColor(40,40,40);doc.setFontSize(10);doc.setFont('helvetica','bold');
+      doc.text(titulo,M+2,y+5.5);
+      doc.setFontSize(8);doc.setTextColor(120,120,120);doc.text(badge,W-M-2,y+5.5,{align:'right'});
+      doc.autoTable({startY:y+9,head:[cols.map(c=>c.h)],body:items.map(item=>cols.map(c=>{
+        if(c.k==='remocao') return item[c.k]?'Sim':'—';
+        if(c.k==='horas') return item[c.k]?item[c.k]+'h':'—';
+        return item[c.k]||'—';
+      })),styles:{fontSize:9,cellPadding:2.5},headStyles:{fillColor:[204,31,31],textColor:[255,255,255],fontStyle:'bold',fontSize:8},alternateRowStyles:{fillColor:[250,250,250]},margin:{left:M,right:M},tableWidth:W-M*2});
+      y=doc.lastAutoTable.finalY+8;
+    };
+    const cS=[{h:'Região',k:'regiao'},{h:'Serviço',k:'servico'},{h:'Tipo',k:'tipo'},{h:'Horas',k:'horas'},{h:'Rem/Inst',k:'remocao'},{h:'Obs',k:'obs'}];
+    const cM=[{h:'Região',k:'regiao'},{h:'Suspeita',k:'servico'},{h:'Obs',k:'obs'}];
+    const cP=[{h:'#',k:'idx'},{h:'Peça',k:'nome'},{h:'Qtd',k:'qtd'},{h:'Seção',k:'secaoLabel'}];
+    drawSec('Serviços Solicitados','Solicitado pelo cliente',dadosOrcamento.solicitados,cS);
+    drawSec('Avarias Adicionais','Não solicitado — oferecer ao cliente',dadosOrcamento.adicionais,cS);
+    drawSec('Encaminhamentos — Mecânica','Setor mecânico',dadosOrcamento.mecanica,cM);
+    const pIdx=(dadosOrcamento.pecas||[]).map((p,i)=>({...p,idx:String(i+1).padStart(2,'0'),secaoLabel:p.secao==='solicitado'?'Solicitado':'Adicional'}));
+    drawSec('Peças para Cotar',`${pIdx.length} peça(s)`,pIdx,cP);
+    if(y>260){doc.addPage();y=20;}
+    doc.setFillColor(255,251,235);doc.rect(M,y,W-M*2,14,'F');
+    doc.setTextColor(122,88,0);doc.setFontSize(8);doc.setFont('helvetica','bold');
+    doc.text('AVISO:',M+3,y+5.5);doc.setFont('helvetica','normal');
+    const av=doc.splitTextToSize('Orçamento elaborado com base em análise visual das fotografias. O orçamentista deve revisar todos os itens antes de enviar ao cliente ou locadora.',W-M*2-18);
+    doc.text(av,M+18,y+5.5);
+    doc.save(`FB_Funilaria_${d.placa}_${hoje.replace(/\//g,'-')}.pdf`);
+  }
+  function novaVistoria(){
+    document.getElementById('resultWrap').classList.remove('active');
+    document.getElementById('formWrap').style.display='block';
+    fotosBase64=[];dadosOrcamento=null;dadosVeiculo={};
+    ['placaInput','veiculoManual','nomeCliente','solicitacao'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('tipoCliente').value='';
+    document.getElementById('fotosGrid').innerHTML='';
+    document.getElementById('resultContent').innerHTML='';
+    document.getElementById('infoStrip').innerHTML='';
+    document.getElementById('fotosCount').style.display='none';
+    resetBadge();
+  }
+  function showError(msg){document.getElementById('errorMsg').textContent=msg;document.getElementById('errorBar').classList.add('active');}
+  function hideError(){document.getElementById('errorBar').classList.remove('active');}
+</script>
+</body>
+</html>
