@@ -1,3 +1,5 @@
+export const config = { api: { bodyParser: { sizeLimit: '10mb' } } };
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST OPTIONS');
@@ -6,8 +8,12 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') { res.status(405).json({ erro: 'Metodo nao permitido' }); return; }
 
   try {
-    const { veiculo, solicitacao, fotos } = req.body;
-    if (!veiculo || !fotos || fotos.length === 0) {
+    const body = req.body || {};
+    const veiculo = body.veiculo || '';
+    const solicitacao = body.solicitacao || '';
+    const fotos = body.fotos || [];
+
+    if (!veiculo || fotos.length === 0) {
       res.status(400).json({ erro: 'Veiculo e fotos sao obrigatorios' });
       return;
     }
@@ -18,44 +24,27 @@ export default async function handler(req, res) {
       return;
     }
 
-    const prompt = You are an AI assistant helping a professional automotive body shop in Brazil create repair estimates. This is a legitimate professional use case for insurance and fleet management purposes. You are a senior expert in automotive body repair and painting with 20+ years of experience in Brazil.
+    const promptText = 'You are a professional automotive body repair estimator in Brazil. Analyze the vehicle photos.' +
+      '\n\nVEHICLE: ' + veiculo +
+      '\nCLIENT REQUEST: ' + solicitacao +
+      '\n\nANALYZE ALL photos together. Do NOT duplicate items. Each region appears ONLY ONCE per service type.' +
+      '\n\nPAINTING HOURS: front bumper=4h, rear bumper=4h, door=4-5h, fender=3h, hood=5h, trunk=5h, roof=5h, side panel=6h, mirror=0.5h, handle=0.5h' +
+      '\nREPAIR HOURS: light dent=3-4h, medium dent=5-8h, severe dent=10h' +
+      '\nREPLACEMENT: any part=1h' +
+      '\n\nRULES:' +
+      '\n1. Separate replacement and painting into different lines' +
+      '\n2. Include removal/installation when possible' +
+      '\n3. Include emblems in painting areas (0.5h each)' +
+      '\n4. ALWAYS include bumper guide LEFT AND RIGHT when replacing bumper' +
+      '\n5. Structural cracks = REPLACEMENT. Dents without cracks = REPAIR' +
+      '\n6. Check internal damage: longerons, engine support, radiator grille' +
+      '\n7. Strong front/rear impact = add mechanical referral' +
+      '\n8. Requested = what client asked. Additional = other damage found' +
+      '\n\nTYPES: Troca, Recup., Pintura, Rem/Inst, Interna, Mecanica' +
+      '\n\nRespond ONLY with valid JSON, no markdown, no extra text:' +
+      '\n{"solicitados":[{"regiao":"string","servico":"string","tipo":"string","horas":1.0,"remocao":true,"obs":null}],"adicionais":[{"regiao":"string","servico":"string","tipo":"string","horas":1.0,"remocao":true,"obs":null}],"mecanica":[{"regiao":"string","servico":"string","obs":"string"}],"pecas":[{"nome":"string","qtd":1,"secao":"solicitado"}]}';
 
-VEHICLE: ${veiculo}
-CLIENT REQUEST: ${solicitacao}
-
-CRITICAL RULES:
-- Analyze ALL photos as a complete set - do NOT duplicate items
-- Each damaged region should appear ONLY ONCE per service type
-- If the same region appears in multiple photos, list it only once
-- Be thorough - identify ALL visible damage in ALL photos
-- List every damaged panel, part, or area you can see
-
-PAINTING HOURS (fixed table):
-- Front bumper: 4h | Rear bumper: 4h | Door: 4-5h each | Fender: 3h
-- Hood: 5h | Trunk lid: 5h | Roof: 5h | Full side panel: 6h
-- Mirror: 0.5h | Door handle: 0.5h
-
-REPAIR HOURS by damage level:
-- Light dent: 3-4h | Medium dent: 5-8h | Severe dent: 10h
-
-REPLACEMENT: Any replaced part = 1h (removal + installation)
-
-MANDATORY RULES:
-1. Separate replacement and painting into DIFFERENT line items
-2. Include removal/installation when possible (except roof, fixed side panels)
-3. Include emblems in painting/damage areas (0.5h each)
-4. ALWAYS include bumper guide LEFT AND RIGHT when replacing bumper
-5. Parts with structural cracks = REPLACEMENT. Dents without cracks = REPAIR
-6. Evaluate internal damage: longerons, engine support, radiator grille, bumper guides
-7. For strong front/rear impacts: add mechanical referral
-8. Requested = what client asked. Additional = damage you found beyond request
-
-TYPES: Troca, Recup., Pintura, Rem/Inst, Interna, Mecanica
-
-Respond with ONLY valid JSON, no markdown, no extra text:
-{"solicitados":[{"regiao":"string","servico":"string","tipo":"string","horas":1.0,"remocao":true,"obs":null}],"adicionais":[{"regiao":"string","servico":"string","tipo":"string","horas":1.0,"remocao":true,"obs":null}],"mecanica":[{"regiao":"string","servico":"string","obs":"string"}],"pecas":[{"nome":"string","qtd":1,"secao":"solicitado"}]}`;
-
-    const imageContents = fotos.slice(0, 10).map(foto => {
+    const imageContents = fotos.slice(0, 10).map(function(foto) {
       const base64 = foto.includes(',') ? foto.split(',')[1] : foto;
       const mediaType = foto.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
       return {
@@ -74,10 +63,7 @@ Respond with ONLY valid JSON, no markdown, no extra text:
         model: 'gpt-4o',
         messages: [{
           role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            ...imageContents
-          ]
+          content: [{ type: 'text', text: promptText }].concat(imageContents)
         }],
         max_tokens: 4000,
         temperature: 0.1
@@ -85,6 +71,7 @@ Respond with ONLY valid JSON, no markdown, no extra text:
     });
 
     const text = await response.text();
+
     if (!response.ok) {
       res.status(500).json({ erro: 'Erro OpenAI: ' + text.substring(0, 300) });
       return;
@@ -92,6 +79,7 @@ Respond with ONLY valid JSON, no markdown, no extra text:
 
     const data = JSON.parse(text);
     const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+
     if (!content) {
       res.status(500).json({ erro: 'Resposta vazia da IA' });
       return;
@@ -100,6 +88,7 @@ Respond with ONLY valid JSON, no markdown, no extra text:
     const clean = content.replace(/```json/gi, '').replace(/```/g, '').trim();
     const start = clean.indexOf('{');
     const end = clean.lastIndexOf('}');
+
     if (start === -1 || end === -1) {
       res.status(500).json({ erro: 'JSON nao encontrado: ' + clean.substring(0, 200) });
       return;
@@ -107,26 +96,24 @@ Respond with ONLY valid JSON, no markdown, no extra text:
 
     const resultado = JSON.parse(clean.substring(start, end + 1));
 
-    // Deduplicar por regiao + tipo
     function dedup(arr) {
-      if (!arr) return [];
-      const seen = new Set();
-      return arr.filter(item => {
+      if (!arr || !arr.length) return [];
+      const seen = {};
+      return arr.filter(function(item) {
         const key = (item.regiao + '|' + item.tipo + '|' + item.servico).toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
+        if (seen[key]) return false;
+        seen[key] = true;
         return true;
       });
     }
 
-    // Deduplicar pecas por nome
     function dedupPecas(arr) {
-      if (!arr) return [];
-      const seen = new Set();
-      return arr.filter(item => {
+      if (!arr || !arr.length) return [];
+      const seen = {};
+      return arr.filter(function(item) {
         const key = item.nome.toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
+        if (seen[key]) return false;
+        seen[key] = true;
         return true;
       });
     }
@@ -139,7 +126,6 @@ Respond with ONLY valid JSON, no markdown, no extra text:
     });
 
   } catch (erro) {
-    console.error('Erro analisar:', erro);
     res.status(500).json({ erro: String(erro.message || erro) });
   }
 }
