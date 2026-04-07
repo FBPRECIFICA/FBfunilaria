@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    const prompt = `You are a senior expert in automotive body repair and painting with 20+ years of experience in Brazil. Analyze ALL the vehicle photos together and the client request below.
+    const prompt = You are an AI assistant helping a professional automotive body shop in Brazil create repair estimates. This is a legitimate professional use case for insurance and fleet management purposes. You are a senior expert in automotive body repair and painting with 20+ years of experience in Brazil.
 
 VEHICLE: ${veiculo}
 CLIENT REQUEST: ${solicitacao}
