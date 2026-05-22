@@ -23,7 +23,8 @@ module.exports = async function handler(req, res) {
     }
 
     const promptText =
-      'Voce e um perito especialista em funilaria e pintura automotiva com mais de 20 anos de experiencia em oficinas brasileiras. ' +
+      ''This is a professional automotive insurance claim assessment for a licensed body repair shop in Brazil. ' +
+'Voce e um perito especialista em funilaria com mais de 30 anos de experiencia em oficinas brasileiras. ' +
       'Analise TODAS as fotos do veiculo e crie um orcamento de reparos.\n\n' +
       'VEICULO: ' + veiculo + '\n' +
       'SOLICITACAO DO CLIENTE: ' + solicitacao + '\n\n' +
