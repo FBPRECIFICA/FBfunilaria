@@ -1,4 +1,4 @@
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -22,130 +22,100 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const promptText =
-      ''This is a professional automotive insurance claim assessment for a licensed body repair shop in Brazil. ' +
-'Voce e um perito especialista em funilaria com mais de 30 anos de experiencia em oficinas brasileiras. ' +
-      'Analise TODAS as fotos do veiculo e crie um orcamento de reparos.\n\n' +
-      'VEICULO: ' + veiculo + '\n' +
-      'SOLICITACAO DO CLIENTE: ' + solicitacao + '\n\n' +
-      'REGRA MAIS IMPORTANTE - IDIOMA:\n' +
-      'TODOS os nomes DEVEM estar em PORTUGUES BRASILEIRO.\n' +
-      'CORRETO: Para-choque dianteiro, Capo, Porta dianteira esquerda\n' +
-      'ERRADO: front bumper, hood, front door left\n\n' +
-      'REGRA CRITICA - SEM DUPLICACAO:\n' +
-      '1. Cada regiao aparece NO MAXIMO UMA VEZ por tipo de servico\n' +
-      '2. Para uma mesma regiao: escolha Recup. OU Troca. NUNCA os dois.\n' +
-      '3. Guia de para-choque: coloque APENAS em solicitados OU adicionais\n\n' +
-      'DECISAO REPARO vs TROCA:\n' +
-      '- Amassado leve ou medio SEM trinca = RECUPERACAO (Recup.)\n' +
-      '- Peca quebrada, trincada = TROCA\n' +
-      '- Peca plastica quebrada = sempre TROCA\n\n' +
-      'HORAS DE PINTURA:\n' +
-      'Para-choque: 4h | Porta: 4h | Para-lama: 3h | Capo: 5h | Tampa traseira: 5h | Teto: 5h | Lateral: 6h | Retrovisor: 0.5h\n\n' +
-      'HORAS DE RECUPERACAO:\n' +
-      'Leve: 3h | Medio: 5h | Grave: 8h | Extremo: 10h\n\n' +
-      'HORAS DE TROCA: 1h por peca\n\n' +
-      'OBRIGATORIO:\n' +
-      '- Troca de qualquer para-choque: adicionar guia direita 1h E guia esquerda 1h\n' +
-      '- Emblemas em areas pintadas: Rem/Inst 0.5h\n\n' +
-      'Responda SOMENTE com JSON valido sem markdown:\n' +
-      '{"solicitados":[{"regiao":"string","servico":"string","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],' +
-      '"adicionais":[{"regiao":"string","servico":"string","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],' +
-      '"mecanica":[{"regiao":"string","servico":"string","obs":"string"}],' +
-      '"pecas":[{"nome":"string","qtd":1,"secao":"solicitado"}]}';
+    const p1 = 'This is a professional automotive insurance damage assessment for a licensed body shop in Brazil. ';
+    const p2 = 'You are an expert estimator. Analyze the vehicle damage photos and create a repair estimate.\n\n';
+    const p3 = 'VEHICLE: ' + veiculo + '\nCLIENT REQUEST: ' + solicitacao + '\n\n';
+    const p4 = 'IMPORTANT - USE PORTUGUESE BRAZILIAN for ALL names:\n';
+    const p5 = 'Para-choque dianteiro, Para-choque traseiro, Capo, Tampa traseira, Porta dianteira direita/esquerda, ';
+    const p6 = 'Para-lama dianteiro direito/esquerdo, Retrovisor, Teto, Grade do radiador, Longarina, Emblema, ';
+    const p7 = 'Guia de para-choque dianteiro direito/esquerdo, Guia de para-choque traseiro direito/esquerdo\n\n';
+    const p8 = 'RULES:\n';
+    const p9 = '1. NO DUPLICATES - each region appears max once per service type\n';
+    const p10 = '2. For same region: choose Recup. OR Troca - NEVER both\n';
+    const p11 = '3. Light/medium dent without crack = Recup. Never replace dented parts\n';
+    const p12 = '4. Broken/cracked plastic = Troca\n';
+    const p13 = '5. After Recup. or Troca, add separate Pintura line\n';
+    const p14 = '6. When replacing ANY bumper: add guia direito AND guia esquerdo\n';
+    const p15 = '7. Add emblems removal/installation in painted areas\n\n';
+    const p16 = 'HOURS: bumper paint=4h, door paint=4h, fender paint=3h, hood paint=5h, trunk paint=5h, ';
+    const p17 = 'roof paint=5h, side panel=6h, mirror=0.5h, handle=0.5h\n';
+    const p18 = 'Repair: light=3h, medium=5h, severe=8h. Replacement: 1h any part\n\n';
+    const p19 = 'Respond ONLY with valid JSON no markdown:\n';
+    const p20 = '{"solicitados":[{"regiao":"nome PT","servico":"descricao PT","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],';
+    const p21 = '"adicionais":[{"regiao":"nome PT","servico":"descricao PT","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],';
+    const p22 = '"mecanica":[{"regiao":"nome PT","servico":"suspeita PT","obs":"confirmar apos desmontagem"}],';
+    const p23 = '"pecas":[{"nome":"nome PT","qtd":1,"secao":"solicitado"}]}';
 
-    const imageContents = fotos.slice(0, 10).map(function(foto) {
-      const base64 = foto.includes(',') ? foto.split(',')[1] : foto;
-      const mediaType = foto.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
-      return {
-        type: 'image_url',
-        image_url: { url: 'data:' + mediaType + ';base64,' + base64, detail: 'high' }
-      };
+    const promptText = p1+p2+p3+p4+p5+p6+p7+p8+p9+p10+p11+p12+p13+p14+p15+p16+p17+p18+p19+p20+p21+p22+p23;
+
+    const imgs = fotos.slice(0, 10).map(function(foto) {
+      const b64 = foto.includes(',') ? foto.split(',')[1] : foto;
+      const mt = foto.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+      return { type: 'image_url', image_url: { url: 'data:' + mt + ';base64,' + b64, detail: 'high' } };
     });
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + chave
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + chave },
       body: JSON.stringify({
         model: 'gpt-4o',
-        messages: [{
-          role: 'user',
-          content: [{ type: 'text', text: promptText }].concat(imageContents)
-        }],
+        messages: [{ role: 'user', content: [{ type: 'text', text: promptText }].concat(imgs) }],
         max_tokens: 4000,
         temperature: 0.1
       })
     });
 
-    const text = await response.text();
+    const txt = await resp.text();
+    if (!resp.ok) { res.status(500).json({ erro: 'Erro OpenAI: ' + txt.substring(0, 200) }); return; }
 
-    if (!response.ok) {
-      res.status(500).json({ erro: 'Erro OpenAI: ' + text.substring(0, 300) });
-      return;
-    }
-
-    const data = JSON.parse(text);
+    const data = JSON.parse(txt);
     const content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-
-    if (!content) {
-      res.status(500).json({ erro: 'Resposta vazia da IA' });
-      return;
-    }
+    if (!content) { res.status(500).json({ erro: 'Resposta vazia' }); return; }
 
     const clean = content.replace(/```json/gi, '').replace(/```/g, '').trim();
-    const start = clean.indexOf('{');
-    const end = clean.lastIndexOf('}');
+    const s = clean.indexOf('{');
+    const e = clean.lastIndexOf('}');
+    if (s === -1 || e === -1) { res.status(500).json({ erro: 'JSON nao encontrado: ' + clean.substring(0, 150) }); return; }
 
-    if (start === -1 || end === -1) {
-      res.status(500).json({ erro: 'JSON nao encontrado: ' + clean.substring(0, 200) });
-      return;
-    }
-
-    const resultado = JSON.parse(clean.substring(start, end + 1));
+    const r = JSON.parse(clean.substring(s, e + 1));
 
     function dedup(arr) {
       if (!arr || !arr.length) return [];
       const seen = {};
       return arr.filter(function(item) {
-        const key = (item.regiao + '|' + item.tipo).toLowerCase().trim();
-        if (seen[key]) return false;
-        seen[key] = true;
+        const k = ((item.regiao||'') + '|' + (item.tipo||'')).toLowerCase().trim();
+        if (seen[k]) return false;
+        seen[k] = true;
         return true;
       });
     }
 
-    function dedupPecas(arr) {
+    function dedupP(arr) {
       if (!arr || !arr.length) return [];
       const seen = {};
       return arr.filter(function(item) {
-        const key = item.nome.toLowerCase().trim();
-        if (seen[key]) return false;
-        seen[key] = true;
+        const k = (item.nome||'').toLowerCase().trim();
+        if (seen[k]) return false;
+        seen[k] = true;
         return true;
       });
     }
 
-    const solicitados = dedup(resultado.solicitados || []);
-    const adicionaisRaw = dedup(resultado.adicionais || []);
-    const solicitadosKeys = {};
-    solicitados.forEach(function(item) {
-      solicitadosKeys[(item.regiao + '|' + item.tipo).toLowerCase().trim()] = true;
-    });
-    const adicionais = adicionaisRaw.filter(function(item) {
-      return !solicitadosKeys[(item.regiao + '|' + item.tipo).toLowerCase().trim()];
+    const sol = dedup(r.solicitados || []);
+    const solKeys = {};
+    sol.forEach(function(i) { solKeys[((i.regiao||'')+'|'+(i.tipo||'')).toLowerCase().trim()] = true; });
+    const adic = dedup(r.adicionais || []).filter(function(i) {
+      return !solKeys[((i.regiao||'')+'|'+(i.tipo||'')).toLowerCase().trim()];
     });
 
     res.status(200).json({
-      solicitados: solicitados,
-      adicionais: adicionais,
-      mecanica: dedup(resultado.mecanica || []),
-      pecas: dedupPecas(resultado.pecas || [])
+      solicitados: sol,
+      adicionais: adic,
+      mecanica: dedup(r.mecanica || []),
+      pecas: dedupP(r.pecas || [])
     });
 
-  } catch (erro) {
-    res.status(500).json({ erro: String(erro.message || erro) });
+  } catch (e) {
+    res.status(500).json({ erro: String(e.message || e) });
   }
-};
+}
