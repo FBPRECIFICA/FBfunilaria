@@ -24,25 +24,89 @@ export default async function handler(req, res) {
       return;
     }
 
-    const promptText = 'You are a professional automotive body repair estimator in Brazil. Analyze the vehicle photos.' +
-      '\n\nVEHICLE: ' + veiculo +
-      '\nCLIENT REQUEST: ' + solicitacao +
-      '\n\nANALYZE ALL photos together. Do NOT duplicate items. Each region appears ONLY ONCE per service type.' +
-      '\n\nPAINTING HOURS: front bumper=4h, rear bumper=4h, door=4-5h, fender=3h, hood=5h, trunk=5h, roof=5h, side panel=6h, mirror=0.5h, handle=0.5h' +
-      '\nREPAIR HOURS: light dent=3-4h, medium dent=5-8h, severe dent=10h' +
-      '\nREPLACEMENT: any part=1h' +
-      '\n\nRULES:' +
-      '\n1. Separate replacement and painting into different lines' +
-      '\n2. Include removal/installation when possible' +
-      '\n3. Include emblems in painting areas (0.5h each)' +
-      '\n4. ALWAYS include bumper guide LEFT AND RIGHT when replacing bumper' +
-      '\n5. Structural cracks = REPLACEMENT. Dents without cracks = REPAIR' +
-      '\n6. Check internal damage: longerons, engine support, radiator grille' +
-      '\n7. Strong front/rear impact = add mechanical referral' +
-      '\n8. Requested = what client asked. Additional = other damage found' +
-      '\n\nTYPES: Troca, Recup., Pintura, Rem/Inst, Interna, Mecanica' +
-      '\n\nRespond ONLY with valid JSON, no markdown, no extra text:' +
-      '\n{"solicitados":[{"regiao":"string","servico":"string","tipo":"string","horas":1.0,"remocao":true,"obs":null}],"adicionais":[{"regiao":"string","servico":"string","tipo":"string","horas":1.0,"remocao":true,"obs":null}],"mecanica":[{"regiao":"string","servico":"string","obs":"string"}],"pecas":[{"nome":"string","qtd":1,"secao":"solicitado"}]}';
+    const promptText =
+      'Voce e um perito especialista em funilaria e pintura automotiva com mais de 20 anos de experiencia em oficinas brasileiras. ' +
+      'Analise TODAS as fotos do veiculo e crie um orcamento de reparos.\n\n' +
+      'VEICULO: ' + veiculo + '\n' +
+      'SOLICITACAO DO CLIENTE: ' + solicitacao + '\n\n' +
+
+      'REGRA MAIS IMPORTANTE - IDIOMA:\n' +
+      'TODOS os nomes de regioes, servicos e pecas DEVEM estar em PORTUGUES BRASILEIRO.\n' +
+      'Exemplos CORRETOS: "Para-choque dianteiro", "Capo", "Porta dianteira esquerda", "Grade do radiador"\n' +
+      'Exemplos ERRADOS: "front bumper", "hood", "front door left", "radiator grille"\n\n' +
+
+      'REGRA CRITICA - SEM DUPLICACAO:\n' +
+      '1. Analise TODAS as fotos como um conjunto unico\n' +
+      '2. Cada regiao deve aparecer NO MAXIMO UMA VEZ por tipo de servico\n' +
+      '3. Se a mesma peca aparecer em multiplas fotos, liste APENAS UMA VEZ\n' +
+      '4. Para-choque dianteiro pode ter: 1 linha Troca + 1 linha Pintura. NAO repita.\n' +
+      '5. Guia de para-choque: coloque APENAS em solicitados OU adicionais, NUNCA nos dois\n\n' +
+
+      'DECISAO REPARO vs TROCA - SIGA RIGOROSAMENTE:\n' +
+      '- Amassado leve ou medio SEM trinca = RECUPERACAO (Recup.) - NUNCA troca\n' +
+      '- Peca quebrada, trincada, deformacao estrutural = TROCA\n' +
+      '- Peca plastica quebrada = sempre TROCA (nao da para recuperar)\n' +
+      '- Em caso de duvida com dano leve = sempre Recup., nunca Troca\n' +
+      '- Para uma mesma regiao: escolha Recup. OU Troca. NUNCA os dois.\n\n' +
+
+      'TABELA DE HORAS DE PINTURA (fixo - nao altere):\n' +
+      '- Para-choque dianteiro: 4h\n' +
+      '- Para-choque traseiro: 4h\n' +
+      '- Porta: 4h cada\n' +
+      '- Para-lama: 3h\n' +
+      '- Capo: 5h\n' +
+      '- Tampa traseira: 5h\n' +
+      '- Teto: 5h\n' +
+      '- Lateral completa: 6h\n' +
+      '- Retrovisor: 0.5h\n' +
+      '- Maceneta: 0.5h\n\n' +
+
+      'HORAS DE RECUPERACAO por nivel de dano:\n' +
+      '- Amassado leve (pequeno, raso): 3h\n' +
+      '- Amassado medio (maior, mais profundo): 5h\n' +
+      '- Amassado grave (muito grande): 8h\n' +
+      '- Dano extremo: 10h\n\n' +
+
+      'HORAS DE TROCA: 1h para qualquer peca substituida\n\n' +
+
+      'NOMES CORRETOS DAS PECAS em portugues:\n' +
+      '- Para-choque dianteiro / Para-choque traseiro\n' +
+      '- Porta dianteira direita / Porta dianteira esquerda\n' +
+      '- Porta traseira direita / Porta traseira esquerda\n' +
+      '- Para-lama dianteiro direito / Para-lama dianteiro esquerdo\n' +
+      '- Capo / Tampa traseira / Teto\n' +
+      '- Retrovisor direito / Retrovisor esquerdo\n' +
+      '- Moldura de roda direita / Moldura de roda esquerda\n' +
+      '- Guia de para-choque dianteiro direito / esquerdo\n' +
+      '- Guia de para-choque traseiro direito / esquerdo\n' +
+      '- Emblema dianteiro / Emblema traseiro\n' +
+      '- Grade do radiador\n' +
+      '- Longarina dianteira direita / esquerda\n' +
+      '- Suporte do motor\n' +
+      '- Radiador\n' +
+      '- Painel traseiro\n\n' +
+
+      'ITENS OBRIGATORIOS:\n' +
+      '- Emblemas em areas de pintura: adicione Rem/Inst 0.5h\n' +
+      '- Troca de QUALQUER para-choque: adicione guia direita 1h E guia esquerda 1h\n' +
+      '- Peca que precisa ser removida para acesso: adicione linha Rem/Inst\n\n' +
+
+      'ENCAMINHAMENTO MECANICA - adicione se houver:\n' +
+      '- Impacto frontal forte: suspeita radiador, suporte motor, direcao\n' +
+      '- Impacto traseiro forte: suspeita escapamento, suspensao traseira\n' +
+      '- Impacto lateral: suspeita alinhamento, suspensao\n\n' +
+
+      'SECOES:\n' +
+      '- solicitados: danos que o cliente pediu especificamente\n' +
+      '- adicionais: outros danos que voce encontrou alem do solicitado\n' +
+      '- mecanica: suspeitas mecanicas para encaminhar ao setor mecanico\n' +
+      '- pecas: lista de todas as pecas para COMPRAR (apenas itens Troca)\n\n' +
+
+      'Responda SOMENTE com JSON valido, sem markdown, sem texto extra, sem explicacao:\n' +
+      '{"solicitados":[{"regiao":"nome em portugues","servico":"descricao em portugues","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],' +
+      '"adicionais":[{"regiao":"nome em portugues","servico":"descricao em portugues","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],' +
+      '"mecanica":[{"regiao":"nome em portugues","servico":"suspeita em portugues","obs":"confirmar apos desmontagem"}],' +
+      '"pecas":[{"nome":"nome da peca em portugues","qtd":1,"secao":"solicitado"}]}';
 
     const imageContents = fotos.slice(0, 10).map(function(foto) {
       const base64 = foto.includes(',') ? foto.split(',')[1] : foto;
@@ -100,7 +164,7 @@ export default async function handler(req, res) {
       if (!arr || !arr.length) return [];
       const seen = {};
       return arr.filter(function(item) {
-        const key = (item.regiao + '|' + item.tipo + '|' + item.servico).toLowerCase();
+        const key = (item.regiao + '|' + item.tipo).toLowerCase().trim();
         if (seen[key]) return false;
         seen[key] = true;
         return true;
@@ -111,21 +175,18 @@ export default async function handler(req, res) {
       if (!arr || !arr.length) return [];
       const seen = {};
       return arr.filter(function(item) {
-        const key = item.nome.toLowerCase();
+        const key = item.nome.toLowerCase().trim();
         if (seen[key]) return false;
         seen[key] = true;
         return true;
       });
     }
 
-    res.status(200).json({
-      solicitados: dedup(resultado.solicitados),
-      adicionais: dedup(resultado.adicionais),
-      mecanica: dedup(resultado.mecanica),
-      pecas: dedupPecas(resultado.pecas)
+    // Remove guias duplicadas entre solicitados e adicionais
+    const solicitados = dedup(resultado.solicitados || []);
+    const adicionaisRaw = dedup(resultado.adicionais || []);
+    const solicitadosKeys = {};
+    solicitados.forEach(function(item) {
+      solicitadosKeys[(item.regiao + '|' + item.tipo).toLowerCase().trim()] = true;
     });
-
-  } catch (erro) {
-    res.status(500).json({ erro: String(erro.message || erro) });
-  }
-}
+    const adicionais = adicionaisRaw.filter(function(item
