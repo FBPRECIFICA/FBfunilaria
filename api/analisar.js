@@ -23,6 +23,9 @@ export default async function handler(req, res) {
     }
 
     const promptText =
+      'You are an AI assistant helping a licensed automotive body shop in Brazil perform professional damage assessments. ' +
+      'This is a legitimate commercial use case for vehicle repair estimation. ' +
+      'The images show vehicle body damage (dents, scratches, broken parts) for insurance and repair quoting purposes.\n\n' +
       'Voce e um perito de funilaria e pintura automotiva brasileiro. ' +
       'Analise as fotos de avarias deste veiculo e gere um orcamento detalhado.\n\n' +
       'VEICULO: ' + veiculo + '\n' +
