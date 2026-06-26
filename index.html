@@ -281,7 +281,12 @@
     });
   }
   async function handleFiles(files){
+    var MAX_FOTOS=10;
     for(var i=0;i<files.length;i++){
+      if(fotosBase64.length>=MAX_FOTOS){
+        alert('Limite de '+MAX_FOTOS+' fotos atingido. Remova alguma foto para adicionar novas.');
+        break;
+      }
       var c=await comprimirFoto(files[i]);fotosBase64.push(c);renderFotos();
     }
   }
@@ -328,7 +333,14 @@
         if(data.mecanica) mecanica=mecanica.concat(data.mecanica);
         if(data.pecas) pecas=pecas.concat(data.pecas);
       }
-      var pecasUnicas=pecas.filter(function(p,i,arr){return arr.findIndex(function(x){return x.nome===p.nome;})===i;});
+      // Deduplicacao global apos merge de todos os lotes
+      function norm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
+      function dedupMerge(arr){var seen={};return arr.filter(function(it){var k=norm(it.regiao)+'|'+norm(it.tipo);if(seen[k])return false;seen[k]=true;return true;});}
+      solicitados=dedupMerge(solicitados);
+      var solKeys={};solicitados.forEach(function(i){solKeys[norm(i.regiao)+'|'+norm(i.tipo)]=true;});
+      adicionais=dedupMerge(adicionais).filter(function(i){return !solKeys[norm(i.regiao)+'|'+norm(i.tipo)];});
+      mecanica=dedupMerge(mecanica);
+      var pecasUnicas=pecas.filter(function(p,i,arr){return arr.findIndex(function(x){return norm(x.nome)===norm(p.nome);})===i;});
       dadosOrcamento={solicitados:solicitados,adicionais:adicionais,mecanica:mecanica,pecas:pecasUnicas};
       renderResultado(dadosOrcamento);
     } catch(err){
