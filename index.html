@@ -428,11 +428,13 @@
     doc.text(hoje,W-M,14,{align:'right'});
     var y=40;
     doc.setTextColor(100,100,100);doc.setFontSize(8);doc.setFont('helvetica','bold');
-    doc.text('PLACA / VEICULO',M,y);doc.text('CLIENTE',80,y);doc.text('SOLICITACAO',145,y);
+    doc.text('PLACA / VEICULO',M,y);doc.text('CLIENTE',95,y);doc.text('SOLICITACAO',155,y);
     doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(30,30,30);y+=5;
-    doc.text(d.placa+' — '+d.veiculo,M,y);
-    doc.text(d.nomeCliente+' ('+d.tipoCliente+')',80,y);
-    var sol=doc.splitTextToSize(d.solicitacao,55);doc.text(sol[0]||'',145,y);y+=14;
+    var placaVeiculo=doc.splitTextToSize(d.placa+' — '+d.veiculo,70);
+    doc.text(placaVeiculo,M,y);
+    var nomeCliente=doc.splitTextToSize(d.nomeCliente+' ('+d.tipoCliente+')',55);
+    doc.text(nomeCliente,95,y);
+    var sol=doc.splitTextToSize(d.solicitacao,45);doc.text(sol[0]||'',155,y);y+=14;
     function drawSec(titulo,badge,items,cols){
       if(!items||items.length===0) return;
       if(y>255){doc.addPage();y=20;}
