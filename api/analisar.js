@@ -22,27 +22,29 @@ export default async function handler(req, res) {
       return;
     }
 
-    const promptText = 'Professional automotive body shop damage assessment in Brazil. ' +
-      'Analyze these vehicle damage photos and create a detailed repair estimate.\n\n' +
-      'VEHICLE: ' + veiculo + '\n' +
-      'CLIENT REQUEST: ' + solicitacao + '\n\n' +
-      'LANGUAGE: All region names, service descriptions and part names MUST be in Brazilian Portuguese.\n' +
-      'Examples: Para-choque dianteiro, Capo, Porta dianteira esquerda, Para-lama, Grade do radiador\n\n' +
-      'RULES:\n' +
-      '1. NO DUPLICATES - each damaged region appears only once per service type\n' +
-      '2. For each region choose ONLY Recup. OR Troca - never both\n' +
-      '3. Dents without cracks = Recup. Broken/cracked parts = Troca\n' +
-      '4. Add separate Pintura line after each Recup. or Troca\n' +
-      '5. Replacing any bumper = add guia direito + guia esquerdo\n' +
-      '6. Emblems in paint area = add Rem/Inst 0.5h\n\n' +
-      'PAINTING HOURS: para-choque=4h, porta=4h, para-lama=3h, capo=5h, tampa traseira=5h, teto=5h, lateral=6h, retrovisor=0.5h\n' +
-      'REPAIR HOURS: leve=3h, medio=5h, grave=8h\n' +
-      'REPLACEMENT HOURS: 1h per part\n\n' +
-      'OUTPUT: valid JSON only, no markdown:\n' +
-      '{"solicitados":[{"regiao":"PT name","servico":"PT description","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],' +
-      '"adicionais":[{"regiao":"PT name","servico":"PT description","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],' +
-      '"mecanica":[{"regiao":"PT name","servico":"PT description","obs":"confirmar apos desmontagem"}],' +
-      '"pecas":[{"nome":"PT name","qtd":1,"secao":"solicitado"}]}';
+    const promptText =
+      'Voce e um perito de funilaria e pintura automotiva brasileiro. ' +
+      'Analise as fotos de avarias deste veiculo e gere um orcamento detalhado.\n\n' +
+      'VEICULO: ' + veiculo + '\n' +
+      'SOLICITACAO DO CLIENTE: ' + solicitacao + '\n\n' +
+      'REGRAS OBRIGATORIAS:\n' +
+      '1. TODOS os nomes de regioes, servicos e pecas OBRIGATORIAMENTE em PORTUGUES BRASILEIRO\n' +
+      '   Exemplos corretos: Para-choque dianteiro, Capo, Porta dianteira esquerda, Para-lama dianteiro direito, Grade do radiador, Tampa traseira, Retrovisor esquerdo\n' +
+      '   NUNCA use ingles: PROIBIDO usar "Hood", "Bumper", "Fender", "Door", "Trunk", "Mirror"\n' +
+      '2. SEM DUPLICATAS - cada regiao aparece UMA UNICA VEZ por tipo de servico\n' +
+      '3. Para cada regiao escolha APENAS Recup. OU Troca - NUNCA os dois na mesma regiao\n' +
+      '   Amassado sem trinca = Recup. | Peca quebrada/trincada = Troca\n' +
+      '4. Apos cada Recup. ou Troca adicione linha de Pintura separada\n' +
+      '5. Troca de para-choque = sempre adicionar guia direito + guia esquerdo\n' +
+      '6. Emblemas em area pintada = adicionar Rem/Inst 0.5h\n\n' +
+      'HORAS DE PINTURA: para-choque=4h, porta=4h, para-lama=3h, capo=5h, tampa traseira=5h, teto=5h, lateral=6h, retrovisor=0.5h\n' +
+      'HORAS RECUPERACAO: leve=3h, medio=5h, grave=8h\n' +
+      'HORAS TROCA: 1h qualquer peca\n\n' +
+      'RETORNE APENAS JSON VALIDO, sem markdown, sem texto adicional:\n' +
+      '{"solicitados":[{"regiao":"nome em portugues","servico":"descricao em portugues","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],' +
+      '"adicionais":[{"regiao":"nome em portugues","servico":"descricao em portugues","tipo":"Recup.|Pintura|Troca|Rem/Inst|Interna","horas":3.0,"remocao":true,"obs":null}],' +
+      '"mecanica":[{"regiao":"nome em portugues","servico":"descricao em portugues","obs":"confirmar apos desmontagem"}],' +
+      '"pecas":[{"nome":"nome em portugues","qtd":1,"secao":"solicitado"}]}';
 
     const msgContent = [{ type: 'text', text: promptText }];
 
@@ -100,11 +102,20 @@ export default async function handler(req, res) {
 
     const r = JSON.parse(clean.substring(s, e + 1));
 
+    // Normaliza string para comparacao: minusculo, sem acentos, sem espacos duplos
+    function normalizar(str) {
+      return (str || '')
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
     function dedup(arr) {
       if (!arr || !arr.length) return [];
       const seen = {};
       return arr.filter(function(item) {
-        const k = ((item.regiao || '') + '|' + (item.tipo || '')).toLowerCase().trim();
+        const k = normalizar(item.regiao) + '|' + normalizar(item.tipo);
         if (seen[k]) return false;
         seen[k] = true;
         return true;
@@ -115,7 +126,7 @@ export default async function handler(req, res) {
       if (!arr || !arr.length) return [];
       const seen = {};
       return arr.filter(function(item) {
-        const k = (item.nome || '').toLowerCase().trim();
+        const k = normalizar(item.nome);
         if (seen[k]) return false;
         seen[k] = true;
         return true;
@@ -125,10 +136,10 @@ export default async function handler(req, res) {
     const sol = dedup(r.solicitados || []);
     const solKeys = {};
     sol.forEach(function(i) {
-      solKeys[((i.regiao || '') + '|' + (i.tipo || '')).toLowerCase().trim()] = true;
+      solKeys[normalizar(i.regiao) + '|' + normalizar(i.tipo)] = true;
     });
     const adic = dedup(r.adicionais || []).filter(function(i) {
-      return !solKeys[((i.regiao || '') + '|' + (i.tipo || '')).toLowerCase().trim()];
+      return !solKeys[normalizar(i.regiao) + '|' + normalizar(i.tipo)];
     });
 
     res.status(200).json({
